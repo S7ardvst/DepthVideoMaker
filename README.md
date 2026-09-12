@@ -1,8 +1,8 @@
 # DepthVideoMaker
 
-黑白深度视频生成器，可将普通视频转换为灰度深度视频。
+Windows 本地黑白深度视频生成器，可将普通视频转换为灰度深度视频。
 
-支持 NVIDIA CUDA 深度推理与 NVENC 硬件编码；没有可用 NVIDIA GPU 时，也可以使用 CPU 处理。
+v1.5.0 使用 **Video Depth Anything Small** 联合分析连续视频帧，重点改善单帧深度模型常见的画面闪烁和深度跳变问题。程序支持 NVIDIA CUDA 推理、NVENC 硬件编码、原音轨保留和输入输出双视频预览。
 
 ## 下载
 
@@ -10,73 +10,79 @@
 
 推荐使用最新版：
 
+- [DepthVideoMaker v1.5.0](https://github.com/S7ardvst/DepthVideoMaker/releases/tag/v1.5.0)
 - [DepthVideoMaker v1.3.0](https://github.com/S7ardvst/DepthVideoMaker/releases/tag/v1.3.0)
 - [DepthVideoMaker v1.0.0](https://github.com/S7ardvst/DepthVideoMaker/releases/tag/v1.0.0)
 
-## 主要功能
+## v1.5.0 主要功能
 
-- 将普通视频转换为黑白深度视频
-- 支持输入、输出双视频预览
+- 使用 Video Depth Anything Small 连续视频深度模型
+- 每次联合分析 32 帧，降低深度视频闪烁
+- 使用重叠窗口对齐和渐变融合，减少长视频窗口接缝
+- 镜头切换时重新建立独立的深度范围
+- 竖屏视频自动旋转推理并恢复原始方向
+- 窗口尺寸变化时，视频预览画面自动适应
+- 支持输入和输出双视频预览
 - 支持拖放视频文件
 - 支持时间线跳转、播放暂停和音量调节
-- 支持 MP4、MOV、AVI、MKV、WebM、M4V 等常见格式
-- 输出 H.264 MP4 视频
-- 保留原视频音轨
+- 支持深度对比度、Gamma 和黑白方向调整
 - 支持 NVIDIA CUDA GPU 深度推理
 - 支持 NVIDIA NVENC 硬件编码
-- CUDA 或 NVENC 不可用时自动回退到 CPU
+- NVENC 不可用时自动切换为 libx264 编码
+- 保留原视频音轨；格式不兼容时自动转换为 AAC
+- 支持取消任务，完成、取消或失败后自动清理临时文件
 
-## v1.3.0 安装方法
+## 安装方法
 
-由于 v1.3.0 安装包较大，下载文件采用分卷压缩。
+1. 打开 [v1.5.0 Release](https://github.com/S7ardvst/DepthVideoMaker/releases/tag/v1.5.0)。
+2. 下载 `黑白深度视频生成器_安装包_v1.5.0.exe`。
+3. 双击安装包并选择安装位置。
+4. 安装完成后运行 `DepthVideoMaker_v1.5.0.exe`。
 
-1. 下载 v1.3.0 Release 中的全部 `.7z.001`、`.7z.002` 分卷文件。
-2. 将所有分卷放在同一个文件夹内。
-3. 安装 [7-Zip](https://www.7-zip.org/)。
-4. 右键 `.7z.001` 文件。
-5. 选择“7-Zip → 解压到当前文件夹”。
-6. 运行解压得到的安装程序。
-
-请勿单独解压 `.7z.002` 文件。
-
-## v1.0.0 安装方法
-
-1. 下载 v1.0.0 Release 中的 `.exe` 安装包。
-2. 双击运行安装程序。
-3. 根据安装向导完成安装。
+安装包内已包含 CUDA 12、cuDNN 和程序所需运行库，无需单独安装 CUDA Toolkit。
 
 ## 使用方法
 
 1. 启动 DepthVideoMaker。
 2. 选择或拖入需要处理的视频。
 3. 选择输出文件位置。
-4. 选择计算设备：
-   - 自动
-   - NVIDIA GPU（CUDA）
-   - CPU
-5. 根据需要启用 NVIDIA NVENC 硬件编码。
-6. 开始生成并等待处理完成。
+4. 根据需要调整对比度、Gamma 和深度方向。
+5. 选择是否启用 NVIDIA NVENC 硬件编码。
+6. 点击“开始生成”，等待处理完成。
 
-## GPU 说明
+## 运行要求
 
-v1.3.0 安装包已包含 CUDA 12 与 cuDNN 运行库，无需单独安装 CUDA Toolkit。
+- Windows 10 或 Windows 11 64 位
+- NVIDIA 显卡及兼容驱动
+- 建议至少 8GB 显存
+- 输出目录需要有足够空间存放视频和临时深度缓存
 
-使用 GPU 加速仍需要：
+v1.5.0 的深度推理需要 NVIDIA CUDA。NVENC 只负责视频编码；如果 NVENC 不可用，程序仍可使用 CPU 完成 H.264 编码。
 
-- NVIDIA 显卡
-- 正常安装且版本合适的 NVIDIA 显卡驱动
+## 支持格式
 
-如果 CUDA 初始化失败，可以将计算设备切换为 CPU。
+- 输入：MP4、MOV、AVI、MKV、WebM、M4V
+- 输出：H.264 MP4
+- 音频：优先复制原音轨，不兼容时转换为 AAC
 
 ## 版本说明
+
+### v1.5.0
+
+- 使用 Video Depth Anything Small 替代 Depth Anything V2 Small
+- 从单帧深度估计升级为连续 32 帧时序深度估计
+- 新增长视频重叠窗口对齐与融合
+- 改进深度稳定性，减少闪烁和深度跳变
+- 修复预览画面不随窗口尺寸变化的问题
+- 修复 NVENC 可用性检测
+- 改进竖屏视频处理
+- 更新程序图标和带版本号的主程序文件名
 
 ### v1.3.0
 
 - 新增 NVIDIA CUDA GPU 深度推理
 - 新增自动、NVIDIA GPU（CUDA）、CPU 三种计算设备
 - 新增 NVIDIA NVENC 硬件编码
-- CUDA 不可用时自动回退 CPU
-- NVENC 不可用时自动回退 libx264
 - 安装程序支持自定义安装位置
 
 ### v1.0.0
@@ -86,11 +92,21 @@ v1.3.0 安装包已包含 CUDA 12 与 cuDNN 运行库，无需单独安装 CUDA 
 
 ## 使用的模型
 
-深度估计模型：Depth Anything V2 Small（Apache-2.0）
+深度估计模型：[Video Depth Anything Small](https://github.com/DepthAnything/Video-Depth-Anything)（Apache-2.0）。
 
 ## 注意事项
 
 - 视频分辨率和时长越大，处理时间越长。
-- 使用 CPU 处理通常会比 NVIDIA GPU 慢。
-- 请确保输出目录有足够的磁盘空间。
-- 软件生成的深度结果取决于原始视频的画面质量和内容。
+- 深度推理期间会占用较多显存，请关闭不需要的 GPU 程序。
+- 软件生成的深度结果取决于原始视频的清晰度、运动幅度和场景内容。
+- 首次运行若被 Windows SmartScreen 提示，请确认文件来源为本仓库的 Release 页面。
+
+## 安装包校验
+
+v1.5.0 安装包 SHA256：
+
+```text
+E8184DBDB897069FFA623342A6C73573F2066E79D17D39B1B7F42E6B1C4A1543
+```
+
+也可以下载 Release 中的 `SHA256SUMS.txt` 进行校验。
